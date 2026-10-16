@@ -1,0 +1,26 @@
+{
+	"schemaVersion": 1,
+	"id": "${id}",
+	"version": "${version}",
+	"name": "${name}",
+	"description": "Treasure enchantments like Mending come from wandering traders instead of villagers. Based on Truly Treasures by Ineffa.",
+	"authors": ["traelmyx"],
+	"contributors": ["Ineffa (original mod)"],
+	"contact": {
+		"sources": "https://github.com/traelmyx/truly-treasures-reborn",
+		"issues": "https://github.com/traelmyx/truly-treasures-reborn/issues"
+	},
+	"license": "LGPL-3.0",
+	"icon": "assets/trulytreasures/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": ["com.ineffa.trulytreasures.fabric.TrulyTreasuresFabric"]
+	},
+	"mixins": ["trulytreasures.mixins.json"],
+	"depends": {
+		"fabricloader": ">=0.16.0",
+		"fabric-api": "*",
+		"minecraft": "${mc_dep}",
+		"java": ">=${java}"
+	}
+}

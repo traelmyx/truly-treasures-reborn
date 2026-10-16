@@ -1,0 +1,14 @@
+{
+	"schemaVersion": 1,
+	"id": "${id}_gametest",
+	"version": "${version}",
+	"name": "Truly Treasures GameTests",
+	"environment": "*",
+	"entrypoints": {
+		"fabric-gametest": ["com.ineffa.trulytreasures.test.fabric.FabricGameTests"],
+		"client": ["com.ineffa.trulytreasures.test.fabric.FabricClientSmoke"]
+	},
+	"depends": {
+		"${id}": "*"
+	}
+}

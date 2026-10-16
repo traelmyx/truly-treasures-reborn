@@ -1,0 +1,12 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.ineffa.trulytreasures.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "EnchantBookForEmeraldsMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
+}
