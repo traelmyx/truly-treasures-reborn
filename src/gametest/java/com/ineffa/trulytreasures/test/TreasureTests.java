@@ -34,7 +34,8 @@ public final class TreasureTests {
 
     public static void wandererListingSellsTreasureBooks(GameTestHelper helper) {
         WanderingTrader trader = helper.spawnWithNoFreeWill(EntityType.WANDERING_TRADER, new BlockPos(1, 2, 1));
-        var listing = new TrulyTreasures.TreasureBookListing();
+        // typed as the vanilla interface so the call is remapped in the production (intermediary) Fabric run
+        VillagerTrades.ItemListing listing = new TrulyTreasures.TreasureBookListing();
         Set<String> seen = new HashSet<>();
         for (int i = 0; i < 200; i++) {
             MerchantOffer offer = listing.getOffer(trader, trader.getRandom());
