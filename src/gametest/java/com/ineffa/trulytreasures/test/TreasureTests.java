@@ -47,23 +47,23 @@ public final class TreasureTests {
         helper.succeed();
     }
 
+    // GameTest worlds turn on every experiment, including the villager trade rebalance, which uses different wandering
+    // trader pools. So this draws the rare trade the way a normal world's wandering trader does (WanderingTrader#updateTrades).
     public static void wanderingTradersStockThem(GameTestHelper helper) {
-        List<WanderingTrader> traders = new ArrayList<>();
-        boolean found = false;
-        java.util.Map<String, Integer> lastOffers = new java.util.TreeMap<>();
-        for (int i = 0; i < 60 && !found; i++) {
-            WanderingTrader trader = helper.spawnWithNoFreeWill(EntityType.WANDERING_TRADER, new BlockPos(1, 2, 1));
-            traders.add(trader);
-            var offers = trader.getOffers();
-            if (!offers.isEmpty()) lastOffers.merge(offers.size() + "x " + offers.get(offers.size() - 1).getResult().getItem(), 1, Integer::sum);
-            for (MerchantOffer offer : offers) {
-                if (offer.getResult().is(Items.ENCHANTED_BOOK) && !enchantmentsOn(offer.getResult()).isEmpty()) found = true;
-            }
-        }
-        traders.forEach(t -> t.discard());
         var rare = VillagerTrades.WANDERING_TRADER_TRADES.get(2);
-        long ours = rare == null ? -1 : java.util.Arrays.stream(rare).filter(l -> l instanceof TrulyTreasures.TreasureBookListing).count();
-        helper.assertTrue(found, "60 wandering traders and none sold a treasure book; rare pool " + (rare == null ? "null" : rare.length) + " entries, " + ours + " ours; last offers seen " + lastOffers);
+        helper.assertTrue(rare != null, "no rare wandering trader pool");
+        long ours = java.util.Arrays.stream(rare).filter(l -> l instanceof TrulyTreasures.TreasureBookListing).count();
+        helper.assertTrue(ours == 3, "expected 3 treasure entries in the rare pool, found " + ours + " of " + rare.length);
+        WanderingTrader trader = helper.spawnWithNoFreeWill(EntityType.WANDERING_TRADER, new BlockPos(1, 2, 1));
+        int books = 0, draws = 600;
+        for (int i = 0; i < draws; i++) {
+            MerchantOffer offer = rare[trader.getRandom().nextInt(rare.length)].getOffer(trader, trader.getRandom());
+            if (offer != null && offer.getResult().is(Items.ENCHANTED_BOOK) && !enchantmentsOn(offer.getResult()).isEmpty()) books++;
+        }
+        trader.discard();
+        double share = books / (double) draws;
+        double expected = ours / (double) rare.length;
+        helper.assertTrue(Math.abs(share - expected) < 0.08, "treasure books in " + books + " of " + draws + " rare trades, expected about " + expected);
         helper.succeed();
     }
 
