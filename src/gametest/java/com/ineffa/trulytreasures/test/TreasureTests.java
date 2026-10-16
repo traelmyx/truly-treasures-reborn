@@ -58,7 +58,9 @@ public final class TreasureTests {
             }
         }
         traders.forEach(t -> t.discard());
-        helper.assertTrue(found, "60 wandering traders and none sold a treasure book");
+        var rare = VillagerTrades.WANDERING_TRADER_TRADES.get(2);
+        long ours = rare == null ? -1 : java.util.Arrays.stream(rare).filter(l -> l instanceof TrulyTreasures.TreasureBookListing).count();
+        helper.assertTrue(found, "60 wandering traders and none sold a treasure book; rare pool " + (rare == null ? "null" : rare.length) + " entries, " + ours + " ours");
         helper.succeed();
     }
 
