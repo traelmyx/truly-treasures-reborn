@@ -1,16 +1,8 @@
 package com.ineffa.trulytreasures.test;
 
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.Screenshot;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraft.core.registries.Registries;
-import net.minecraft.world.Difficulty;
-import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.GameType;
-import net.minecraft.world.level.LevelSettings;
-import net.minecraft.world.level.WorldDataConfiguration;
-import net.minecraft.world.level.levelgen.WorldOptions;
-import net.minecraft.world.level.levelgen.presets.WorldPresets;
 
 import net.minecraft.client.gui.screens.inventory.MerchantScreen;
 import net.minecraft.world.entity.npc.WanderingTrader;
@@ -51,19 +43,19 @@ public final class ClientSmoke {
         try {
             switch (stage) {
                 case 0 -> {
-                    Screen screen = mc.screen;
-                    if (screen != null && mc.getOverlay() == null && ++ticks >= 20) {
+                    Screen screen = SmokeCompat.screen(mc);
+                    if (screen != null && SmokeCompat.overlayHidden(mc) && ++ticks >= 20) {
                         if (screen.getClass().getSimpleName().equals("LoadingErrorScreen")) {
                             fail("mod loading errors");
                         }
                         ticks = 0;
                         mc.options.tutorialStep = net.minecraft.client.tutorial.TutorialSteps.NONE;
-                        createWorld(mc);
+                        SmokeCompat.createFlatWorld(mc, GameType.SURVIVAL);
                         stage = 1;
                     }
                 }
                 case 1 -> {
-                    if (mc.level != null && mc.player != null && mc.screen == null) {
+                    if (mc.level != null && mc.player != null && SmokeCompat.screen(mc) == null) {
                         stage = 2;
                     }
                 }
@@ -79,16 +71,16 @@ public final class ClientSmoke {
                         mc.gameMode.interact(mc.player, trader, net.minecraft.world.InteractionHand.MAIN_HAND);
                     }
                     if (ticks == 120) {
-                        Screenshot.grab(mc.gameDirectory, "wandering-trader.png", mc.getMainRenderTarget(), msg -> {});
+                        SmokeCompat.screenshot(mc, "wandering-trader.png");
                     }
                     if (ticks >= 130) {
-                        if (!(mc.screen instanceof MerchantScreen screen)) {
-                            fail("trade screen not open: " + mc.screen);
+                        if (!(SmokeCompat.screen(mc) instanceof MerchantScreen screen)) {
+                            fail("trade screen not open: " + SmokeCompat.screen(mc));
                             return;
                         }
                         boolean book = screen.getMenu().getOffers().stream().anyMatch(o -> o.getResult().is(Items.ENCHANTED_BOOK));
                         if (!book) fail("the trader shown has no treasure book");
-                        mc.setScreen(null);
+                        SmokeCompat.setScreen(mc, null);
                         Files.writeString(mc.gameDirectory.toPath().resolve("smoke-ok"), "ok\n");
                         stage = 3;
                         mc.stop();
@@ -101,13 +93,6 @@ public final class ClientSmoke {
             t.printStackTrace();
             fail(t.toString());
         }
-    }
-
-    private static void createWorld(Minecraft mc) {
-        LevelSettings settings = new LevelSettings("smoke", GameType.SURVIVAL, false, Difficulty.PEACEFUL, true, new GameRules(), WorldDataConfiguration.DEFAULT);
-        mc.createWorldOpenFlows().createFreshLevel("smoke", settings, new WorldOptions(0L, false, false),
-            registries -> registries.registryOrThrow(Registries.WORLD_PRESET).getHolderOrThrow(WorldPresets.FLAT).value().createWorldDimensions(),
-            mc.screen);
     }
 
     // a wandering trader in front of the player, re-rolled until it has a treasure book (each has roughly a one-in-three chance)
